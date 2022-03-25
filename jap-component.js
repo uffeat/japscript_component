@@ -1,6 +1,7 @@
 class JapComponent extends HTMLElement {
-  constructor() {
+  constructor({name="no-name"}) {
     super();
+    this.name = name;
     this.parentComponent = null;
     this._root = this.attachShadow({ mode: 'open' });
   }
@@ -20,6 +21,9 @@ class JapComponent extends HTMLElement {
 
   /* Adds component to slot in this component. */
   addComponent(component, { clear = false, slot = '' }) {
+    if (component.parentComponent) {
+      throw `Cannot add component '${component.name || component}'. Component already added to '${component.parentComponent.name}'.`;
+    }
     this._checkSlot(slot);
     if (clear === true) {
       this.clear(slot);
@@ -27,6 +31,11 @@ class JapComponent extends HTMLElement {
     component.setAttribute('slot', slot);
     this.appendChild(component);  // Note: Appends to 'this' (NOT 'this._root').
     component.parentComponent = this;
+    if (!('removeFromParent' in component)) {
+      component.removeFromParent = () => {
+        component.parentComponent.removeComponent(component);
+      };
+    }
   }
 
   /* Removes components added to slot. */
@@ -95,7 +104,7 @@ class JapComponent extends HTMLElement {
   _checkSlot(slot) {
     // Throw exception if slot does not exist:
     if (!this.getSlots().includes(slot)) {
-      throw `Slot '${slot}' could not be found.`;
+      throw `Slot '${slot}' could not be found in component '${this.name}'.`;
     }
   }
 
