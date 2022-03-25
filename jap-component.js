@@ -1,7 +1,7 @@
 class JapComponent extends HTMLElement {
   constructor() {
     super();
-    this.parent_component = null;
+    this.parentComponent = null;
     this._root = this.attachShadow({ mode: 'open' });
   }
 
@@ -19,49 +19,68 @@ class JapComponent extends HTMLElement {
   }
 
   /* Adds component to slot in this component. */
-  add_component(component, { clear = false, slot = '' }) {
-    this._check_slot(slot);
+  addComponent(component, { clear = false, slot = '' }) {
+    this._checkSlot(slot);
     if (clear === true) {
       this.clear(slot);
     }
     component.setAttribute('slot', slot);
     this.appendChild(component);  // Note: Appends to 'this' (NOT 'this._root').
-    component.parent_component = this;
+    component.parentComponent = this;
   }
 
   /* Removes components added to slot. */
   clear({slot}) {
-    if (slot === undefined) {
-      this.get_components({}).forEach(component => this.remove_component(component));
+    if ((slot === undefined) || (slot === null)) {
+      this.getComponents({}).forEach(component => this.removeComponent(component));
     }
     else {
-      this._check_slot(slot);
-      this.get_components({slot}).forEach(component => this.remove_component(component));
+      this._checkSlot(slot);
+      this.getComponents({slot}).forEach(component => this.removeComponent(component));
     }
   }
 
   /* Returns components added to slot'. */
-  get_components({slot}) {
-    if (slot === undefined) {
+  getComponents({slot}) {
+    if ((slot === undefined) || (slot === null)) {
       return [...this.querySelectorAll(`*[slot]`)];
     }
     else {
-      this._check_slot(slot);
+      this._checkSlot(slot);
       return [...this.querySelectorAll(`*[slot="${slot}"]`)];
     }
   }
 
   /* Returns array of slot names. Unnamed slot's name is ''.*/
-  get_slots() {
+  getSlots() {
     return [...this._root.querySelectorAll(`slot`)].map(element => element.name);
   }
 
-  remove_component(component) {
+  /* Hides component */
+  hide() {
+    this.style.display = 'none';
+  }
+
+  /* Removes components from the DOM and dissociates it fro this component (as parent component). */
+  removeComponent(component) {
     component.removeAttribute('slot');
-    component.parent_component = null;
+    component.parentComponent = null;
     component.remove();
   }
 
+  /* If this component has a parent component, removes this components from the DOM and dissociates it from parent component. */
+  removeFromParent() {
+    if (this.parentComponent) {
+      this.parentComponent.removeComponent(this);
+    }
+  }
+
+  /* Shows component */
+  show() {
+    this.style.display = 'initial';
+  }
+
+  /* Makes the component fill the app's root element (with id 'appGoesHere') */
   take() {
     const appRoot = document.getElementById('appGoesHere');
     if (appRoot) {
@@ -72,27 +91,12 @@ class JapComponent extends HTMLElement {
     }
   }
 
-  _check_slot(slot) {
+  /* Checks that this component has a given slot and throws an error if not. */
+  _checkSlot(slot) {
     // Throw exception if slot does not exist:
-    if (!this.get_slots().includes(slot)) {
+    if (!this.getSlots().includes(slot)) {
       throw `Slot '${slot}' could not be found.`;
     }
-  }
-
-  /* Hides component */
-  hide() {
-    this.style.display = 'none';
-  }
-
-  remove_from_parent() {
-    if (this.parent_component) {
-      this.parent_component.remove_component(this);
-    }
-  }
-
-  /* Shows component */
-  show() {
-    this.style.display = 'initial';
   }
 
 }
