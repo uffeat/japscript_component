@@ -1,0 +1,8 @@
+{
+  "files.autoSave": "afterDelay",
+  "editor.fontSize": 16,
+  "editor.fontFamily": "'JetBrains Mono', 'Fira Code', 'Inconsolata', 'monospace'",
+  "editor.tabSize": 2,
+  "editor.lineHeight": 1.6,
+  "workbench.colorTheme": "Glance (rainglow)"
+}
