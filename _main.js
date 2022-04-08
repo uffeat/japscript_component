@@ -1,13 +1,22 @@
-import { JapComponent } from "./jap-component.js";
+import { getWebComponent, WebComponent } from "./web-component.js";
 
-const root = document.getElementById('appGoesHere');
+const $app = document.getElementById('app')
 
-const japComponent1 = new JapComponent();
-japComponent1.shadowRoot.innerHTML = `
-<h1>Jap Component 1</h1>
-`;
+const $webComponent1 = new WebComponent()
+$webComponent1.shadowRoot.innerHTML = `
+<h1>Web Component 1</h1>
+`
 
-root.appendChild(japComponent1);
+$app.appendChild($webComponent1)
+
+const $webComponent2 = getWebComponent()
+$webComponent2.shadowRoot.innerHTML = `
+<h1>Web Component 2</h1>
+`
+
+$app.appendChild($webComponent2)
+
+
 
 
 
